@@ -20,7 +20,7 @@ export const getMoviesByIdController = async (req, res, next) => {
 
 
     if (!movie) {
-      
+
       next(createHttpError(404, 'Movie not found'));
     }
 
@@ -33,7 +33,10 @@ export const getMoviesByIdController = async (req, res, next) => {
 };
 
 export const createMovieController = async (req, res) => {
+
+  // console.log(req.body);
   const movie = await createMovie(req.body);
+  // console.log(movie);
 
   res.status(201).json({
     status: 201,
