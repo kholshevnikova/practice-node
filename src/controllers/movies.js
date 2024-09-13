@@ -1,11 +1,24 @@
-// import { isValidObjectId } from "mongoose";
-import { createMovie, deleteMovie, getAllMovies, getMovieById, updateMovie } from "../services/movies.js";
-import createHttpError from "http-errors";
-
-
+import {
+  createMovie,
+  deleteMovie,
+  getAllMovies,
+  getMovieById,
+  updateMovie,
+} from '../services/movies.js';
+import createHttpError from 'http-errors';
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
 
 export const getMoviesController = async (req, res, next) => {
-  const movies = await getAllMovies();
+  const { page, perPage } = parsePaginationParams(req.query);
+
+  const { sortBy, sortOrder } = parseSortParams(req.query);
+  const movies = await getAllMovies({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+  });
 
   res.json({
     status: 200,
@@ -15,29 +28,23 @@ export const getMoviesController = async (req, res, next) => {
 };
 
 export const getMoviesByIdController = async (req, res, next) => {
-    const { id } = req.params;
+  const { id } = req.params;
   const movie = await getMovieById(id);
 
+  if (!movie) {
+    next(createHttpError(404, 'Movie not found'));
+  }
 
-    if (!movie) {
-
-      next(createHttpError(404, 'Movie not found'));
-    }
-
-    // Відповідь, якщо контакт знайдено
-    res.json({
-        status: 200,
-        message: `Successfully found movie with id ${id}!`,
-        data: movie,
-    });
+  // Відповідь, якщо контакт знайдено
+  res.json({
+    status: 200,
+    message: `Successfully found movie with id ${id}!`,
+    data: movie,
+  });
 };
 
 export const createMovieController = async (req, res) => {
-
-  // console.log(req.body);
   const movie = await createMovie(req.body);
-  // console.log(movie);
-
   res.status(201).json({
     status: 201,
     message: `Successfully created a movie!`,
@@ -55,7 +62,6 @@ export const deleteMovieController = async (req, res, next) => {
   }
 
   res.status(204).send();
-
 };
 
 export const upsertMovieController = async (req, res, next) => {
@@ -73,10 +79,7 @@ export const upsertMovieController = async (req, res, next) => {
     message: 'Successfully upserted a movie!',
     data: result.movie,
   });
-
-
 };
-
 
 export const patchMovieController = async (req, res, next) => {
   const { id } = req.params;
