@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { genreList, releaseYearRegexp } from '../../constants/movies.js';
+import { genreList } from '../../constants/movies.js';
 import { handleSaveError, setUpdateOptions } from '../models/hooks.js';
 const movieSchema = new Schema(
   {
@@ -22,8 +22,11 @@ const movieSchema = new Schema(
       required: true,
     },
     releaseYear: {
-      type: String,
-      match: releaseYearRegexp,
+      // type: String,
+      // match: releaseYearRegexp,
+      type: Number,
+      min: 1895,
+      max: new Date().getFullYear(),
       required: true,
     },
   },
