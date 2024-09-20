@@ -12,6 +12,7 @@ import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import validateBody from '../utils/validateBody.js';
 import { movieAddSchema, moviePatchSchema } from '../validations/movies.js';
 import isValidId from '../middlewares/isValidId.js';
+import { authenticate } from '../middlewares/authenticate.js';
 
 const router = Router();
 
@@ -40,5 +41,8 @@ router.patch(
   validateBody(moviePatchSchema),
   ctrlWrapper(patchMovieController),
 );
+
+router.use(authenticate);
+router.get('/movies', ctrlWrapper(getMoviesController));
 
 export default router;

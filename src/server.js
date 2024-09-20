@@ -3,43 +3,39 @@ import cors from 'cors';
 import pino from 'pino-http';
 import { env } from './utils/env.js';
 // import * as movieServices from './services/movies.js';
+import cookieParser from 'cookie-parser';
 
-import moviesRouter from './routers/movies.js';
+import router from './routers/index.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 
-
-const port = Number(env("PORT", 3000));
-
+const port = Number(env('PORT', 3000));
 
 export const startServer = () => {
-    const app = express();
-    const logger = pino({
-        transport: {
-            target: 'pino-pretty'
-        }
-    });
+  const app = express();
+  const logger = pino({
+    transport: {
+      target: 'pino-pretty',
+    },
+  });
 
-    app.use(logger);
-    app.use(cors());
-    app.use(express.json());
+  app.use(logger);
+  app.use(cors());
+  app.use(express.json());
+  app.use(cookieParser());
 
-   
-    app.get('/', (req, res) => {
+  app.get('/', (req, res) => {
     res.json({
       message: 'Hello World!',
     });
-    });
+  });
 
+  app.use(router);
 
-    app.use( moviesRouter);
+  app.use(errorHandler);
+  app.use('*', notFoundHandler);
 
-    app.use(errorHandler);
-    app.use('*', notFoundHandler);
-
-
-    app.listen(port, () => {
-        console.log('Server running on port 3000');
-    });
+  app.listen(port, () => {
+    console.log('Server running on port 3000');
+  });
 };
-
