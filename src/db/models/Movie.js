@@ -29,6 +29,7 @@ const movieSchema = new Schema(
       max: new Date().getFullYear(),
       required: true,
     },
+    photo: { type: String },
   },
   { versionKey: false, timestamps: true },
 );

@@ -4,6 +4,7 @@ import pino from 'pino-http';
 import { env } from './utils/env.js';
 // import * as movieServices from './services/movies.js';
 import cookieParser from 'cookie-parser';
+import { UPLOAD_DIR } from './constants/index.js';
 
 import router from './routers/index.js';
 import { errorHandler } from './middlewares/errorHandler.js';
@@ -23,6 +24,7 @@ export const startServer = () => {
   app.use(cors());
   app.use(express.json());
   app.use(cookieParser());
+  app.use('/uploads', express.static(UPLOAD_DIR));
 
   app.get('/', (req, res) => {
     res.json({
