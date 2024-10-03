@@ -17,6 +17,7 @@ import {
   TEMPLATES_DIR,
 } from '../constants/index.js';
 import { SessionsCollection } from '../db/models/session.js';
+import { validateCode } from '../utils/googleOauth2.js';
 
 export const registerUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
@@ -159,4 +160,29 @@ export const resetPassword = async (payload) => {
     { _id: user._id },
     { password: encryptedPassword },
   );
+};
+
+export const signInOrSignUpWithGoogleAuth = async (code) => {
+  const loginTicket = await validateCode(code);
+  const payload = loginTicket.getPayload();
+
+  let user = UsersCollection.findOne({ email: payload.email });
+  if (!user) {
+    const password = randomBytes(10);
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    user = await UsersCollection.create({
+      email: payload.email,
+      password: encryptedPassword,
+      name: payload.name,
+      verify: true,
+    });
+    delete user._doc.password;
+  }
+
+  const sessionData = createSession();
+  const userSession = await SessionsCollection.create({
+    userId: user._id,
+    ...sessionData,
+  });
+  return userSession;
 };
